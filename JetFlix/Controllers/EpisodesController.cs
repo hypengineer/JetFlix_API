@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using JetFlix_API.Data;
 using JetFlix_API.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace JetFlix_API.Controllers
 {
@@ -23,17 +25,15 @@ namespace JetFlix_API.Controllers
 
         // GET: api/Episodes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Episode>>> GetEpisodes()
+        public ActionResult<IEnumerable<Episode>> GetEpisodes(int mediaId, byte seasonNumber)
         {
-          if (_context.Episodes == null)
-          {
-              return NotFound();
-          }
-            return await _context.Episodes.ToListAsync();
+          
+            return _context.Episodes.Where(e=>e.MediaId==mediaId&&e.SeasonNumber==seasonNumber).OrderBy(e=>e.EpisodeNumber).ToList();
         }
 
         // GET: api/Episodes/5
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<Episode>> GetEpisode(long id)
         {
           if (_context.Episodes == null)
@@ -49,6 +49,36 @@ namespace JetFlix_API.Controllers
 
             return episode;
         }
+
+
+        // GET: api/Episodes/5
+        [HttpGet("Watch")]
+        [Authorize]
+        public void Watch(long id)
+        {
+            UserWatched userWatched = new UserWatched();
+            Episode? episode = _context.Episodes.Find(id);
+            try
+            {
+                userWatched.UserId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));//Giriş yapan kullanıcının idsini longa çevirim UserId'ye eşitledik
+                userWatched.EpisodeId = id;
+                _context.UserWatcheds.Add(userWatched);
+                episode.ViewCount++;
+                _context.Episodes.Update(episode);
+                _context.SaveChanges();
+
+                //ilk izlemede count artar
+            }
+
+            catch (Exception ex)
+            {
+
+            }
+            //Her izlenmede count artar
+
+
+        }
+
 
         // PUT: api/Episodes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

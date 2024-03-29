@@ -25,10 +25,12 @@ namespace JetFlix_API.Controllers
         }
 
         private readonly SignInManager<JetFlixUser> _signInManager;
+        private readonly ApplicationDbContext _context;
 
-        public JetFlixUsersController(SignInManager<JetFlixUser> signInManager)
+        public JetFlixUsersController(SignInManager<JetFlixUser> signInManager,ApplicationDbContext context)
         {
             _signInManager = signInManager;
+            _context = context;
         }
 
         // GET: api/JetFlixUsers
@@ -176,6 +178,12 @@ namespace JetFlix_API.Controllers
             if (jetFlixUser == null)
             {
                 return false;
+            }
+
+            if (_context.UserPlans.Where(u => u.UserId == jetFlixUser.Id && u.EndDate >= DateTime.Today).Any() == false)
+            {
+                jetFlixUser.Passive = true;
+                _signInManager.UserManager.UpdateAsync(jetFlixUser).Wait();
             }
 
             if (jetFlixUser.Passive == true)
