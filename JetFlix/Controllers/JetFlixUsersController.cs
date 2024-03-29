@@ -120,14 +120,14 @@ namespace JetFlix_API.Controllers
         // POST: api/JetFlixUsers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public ActionResult<string> PostJetFlixUser(JetFlixUser jetFlixUser, string Password)
+        public ActionResult<string> PostJetFlixUser(JetFlixUser jetFlixUser)
         {
             if (User.Identity!.IsAuthenticated == true)
             {
                 return BadRequest();
             }
             //_signInManager.UserManager.CreateAsync(jetFlixUser).Wait();
-            IdentityResult identityResult = _signInManager.UserManager.CreateAsync(jetFlixUser, Password).Result;
+            IdentityResult identityResult = _signInManager.UserManager.CreateAsync(jetFlixUser, jetFlixUser.Password ).Result;
 
             if (identityResult != IdentityResult.Success)
             {
@@ -180,11 +180,10 @@ namespace JetFlix_API.Controllers
                 return false;
             }
 
-            if (_context.UserPlans.Where(u => u.UserId == jetFlixUser.Id && u.EndDate >= DateTime.Today).Any() == false)
-            {
-                jetFlixUser.Passive = true;
-                _signInManager.UserManager.UpdateAsync(jetFlixUser).Wait();
-            }
+            //if (_context.UserPlans.Where(u => u.UserId == jetFlixUser.Id && u.EndDate >= DateTime.Today).Any() == false)
+            //{
+            //    jetFlixUser.Passive = true;
+            //}
 
             if (jetFlixUser.Passive == true)
             {

@@ -84,16 +84,20 @@ namespace JetFlix_API.Controllers
         // POST: api/Meidas
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Media>> PostMedia(Media media)
+        public ActionResult<Media> PostMedia(Media media, short catId)
         {
-          if (_context.Medias == null)
-          {
-              return Problem("Entity set 'ApplicationDbContext.Medias'  is null.");
-          }
+            MediaCategory mediaCategory = new MediaCategory();
             _context.Medias.Add(media);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
-            return CreatedAtAction("GetMedia", new { id = media.Id }, media);
+            mediaCategory.CategoryId = catId;
+            mediaCategory.MediaId = media.Id;
+          
+           
+            _context.MediaCategories.Add(mediaCategory);
+            _context.SaveChanges();
+
+            return Ok();
         }
 
         // DELETE: api/Meidas/5

@@ -86,8 +86,12 @@ namespace JetFlix_API.Controllers
         [HttpPost]
         public void PostUserPlan(string eMail, short planId)
         {
+            Plan plan = _context.Plans.Find(planId);
+            //Fet payment for plan.Price;
+            //if(payment succesful)
+
             UserPlan userPlan = new UserPlan();
-            //userPlan.UserId = Find from UserManager with EMAil
+            //userPlan.UserId = Find from UserManager with EMail
             
             userPlan.PlanId = planId;
             _context.UserPlans.Add(userPlan);
