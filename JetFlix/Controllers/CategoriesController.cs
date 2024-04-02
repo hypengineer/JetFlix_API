@@ -22,20 +22,26 @@ namespace JetFlix_API.Controllers
             _context = context;
         }
 
+        [HttpGet("IMDB")]
+        public string IMDB(string title)
+        {
+            HttpClient httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("authorization", "apikey 1ESZpNKxD3uKoCpGTVIItJ:3JXkM32N2EDyLaOj5Q00K9");
+            return httpClient.GetStringAsync("https://api.collectapi.com/imdb/imdbSearchByName?query=" + title).Result;
+        }
+
         // GET: api/Categories
         [HttpGet]
-        public  ActionResult<List<Category>> GetCategories()
+        public ActionResult<List<Category>> GetCategories()
         {
-
-            //return _context.Categories.ToList();
-            return _context.Categories.AsNoTracking().ToList(); 
+            return _context.Categories.AsNoTracking().ToList();
         }
 
         // GET: api/Categories/5
         [HttpGet("{id}")]
+        //[Authorize]
         public ActionResult<Category> GetCategory(short id)
         {
-          
             Category? category = _context.Categories.Find(id);
 
             if (category == null)
@@ -49,56 +55,30 @@ namespace JetFlix_API.Controllers
         // PUT: api/Categories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut]
-        public void PutCategory(Category category)//IActionResulltu kaldırdık. Nocontent dönen bir şeye ActionResulta ihtiyaç yok. id'yi de kaldırdık
+        //[Authorize(Roles = "ContentAdmin")]
+        public void PutCategory(Category category)
         {
-
             _context.Categories.Update(category);
 
             try
             {
                 _context.SaveChanges();
             }
-            catch (Exception )
+            catch (Exception ex)
             {
-                
             }
-
-            
         }
 
         // POST: api/Categories
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        //[Authorize(Roles ="ContentAdmin")]  
+        //[Authorize(Roles = "ContentAdmin")]
         public short PostCategory(Category category)
         {
-          
-          
             _context.Categories.Add(category);
             _context.SaveChanges();
 
-            //return CreatedAtAction("GetCategory", new { id = category.Id }, category); // GetCategory Actionunu çağırıyor ve GetCategory buraya id ile dönyüyor. Gereksiz
-
             return category.Id;
-         }
-
-        //// DELETE: api/Categories/5  // Hiçbir şey silmeyeceğimiz  için Delete Actionuna gerek yok
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteCategory(short id)
-        //{
-            
-        //    Category? category = _context.Categories.Find(id);
-        //    if (category == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    _context.Categories.Remove(category);
-        //    await _context.SaveChangesAsync();
-
-        //    return NoContent();
-        //}
-
-        
+        }
     }
 }
